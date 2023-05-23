@@ -112,7 +112,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Page<EmployeeDTO> getAllEmployeesByPage(int page) {
         Pageable pageable = (Pageable) PageRequest.of(page, 10);
-        Page<Employee> employeePage = employeeRepository.findAllEmployees(pageable);
+        Page<Employee> employeePage = employeeRepository.findAllEmployees((org.springframework.data.domain.Pageable) pageable);
         return employeePage.map(this::convertToDTO);
     }
     private EmployeeDTO mapToEmployeeDTO(Employee employee) {

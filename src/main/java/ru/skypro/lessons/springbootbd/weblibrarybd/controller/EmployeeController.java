@@ -21,7 +21,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     private final PositionRepository positionRepository;
 
-    @GetMapping
+    @GetMapping("/employees")
     public List<EmployeeDTO> getAllEmployees() {
         return employeeService.getAllEmployees();
     }

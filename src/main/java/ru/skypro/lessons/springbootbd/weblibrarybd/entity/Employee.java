@@ -8,6 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
 @Entity
+@Table(name = "newEmployee")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
