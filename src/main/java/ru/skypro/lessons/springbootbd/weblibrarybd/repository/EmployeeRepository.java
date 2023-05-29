@@ -30,8 +30,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     @Query(value = "SELECT e FROM Employee e",
             countQuery = "SELECT COUNT(e) FROM Employee e")
     Page<Employee> findAllEmployees(Pageable pageable);
-    @Transactional
-    void saveAllEmployees(List<Employee> employees);
+
 
     List<Employee> findByDepartment(Department department);
 }

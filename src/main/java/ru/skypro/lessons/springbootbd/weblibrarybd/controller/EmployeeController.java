@@ -105,7 +105,7 @@ public class EmployeeController {
             List<Employee> employees = readEmployeesFromJson(fileInputStream);
 
 
-            employeeRepository.saveAllEmployees(employees);
+            employeeRepository.saveAll(employees);
 
             return ResponseEntity.ok("File uploaded successfully");
         } catch (IOException e) {
