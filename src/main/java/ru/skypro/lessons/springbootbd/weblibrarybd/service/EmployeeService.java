@@ -22,7 +22,4 @@ public interface EmployeeService {
 
     Page<EmployeeDTO> getAllEmployeesByPage(int page);
 
-
-
-
 }

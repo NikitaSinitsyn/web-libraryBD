@@ -25,6 +25,9 @@ public class Employee {
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 
 
     @Override
