@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.lessons.springbootbd.weblibrarybd.CustomExceptionHandler.PositionNotFoundException;
 import ru.skypro.lessons.springbootbd.weblibrarybd.CustomExceptionHandler.ResourceNotFoundException;
@@ -40,62 +41,69 @@ public class EmployeeController {
     private final DepartmentRepository departmentRepository;
     private final ReportRepository reportRepository;
 
-   @GetMapping("/employees")
-   public List<EmployeeDTO> getAllEmployees() {
-       return employeeService.getAllEmployees();
-   }
+    @GetMapping("/employees")
 
-   @GetMapping("/{id}")
-   public EmployeeDTO getEmployeeById(@PathVariable int id) {
-       return employeeService.getEmployeeById(id);
-   }
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeService.getAllEmployees();
+    }
 
-   @PostMapping
-   @ResponseStatus(HttpStatus.CREATED)
-   public void createEmployee(@RequestBody EmployeeDTO employeeDTO) {
-       employeeService.createEmployee(employeeDTO);
-   }
+    @GetMapping("/{id}")
+    public EmployeeDTO getEmployeeById(@PathVariable int id) {
+        return employeeService.getEmployeeById(id);
+    }
 
-   @PutMapping("/{id}")
-   public void updateEmployee(@PathVariable int id, @RequestBody EmployeeDTO employeeDTO) {
-       employeeService.updateEmployee(id, employeeDTO);
-   }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createEmployee(@RequestBody EmployeeDTO employeeDTO) {
+        employeeService.createEmployee(employeeDTO);
+    }
 
-   @DeleteMapping("/{id}")
-   public void deleteEmployee(@PathVariable int id) {
-       employeeService.deleteEmployee(id);
-   }
-   @GetMapping("/position/{positionId}")
-   public List<EmployeeDTO> getEmployeesByPosition(@PathVariable int positionId) {
-       positionRepository.findById(positionId)
-               .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + positionId));
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public void updateEmployee(@PathVariable int id, @RequestBody EmployeeDTO employeeDTO) {
+        employeeService.updateEmployee(id, employeeDTO);
+    }
 
-       return employeeService.getEmployeesByPosition(positionId);
-   }
-   @GetMapping("/withHighestSalary")
-   public ResponseEntity<List<EmployeeDTO>> getEmployeesWithHighestSalary() {
-       List<EmployeeDTO> employees = employeeService.getEmployeesWithHighestSalary();
-       return ResponseEntity.ok(employees);
-   }
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteEmployee(@PathVariable int id) {
+        employeeService.deleteEmployee(id);
+    }
 
-   @GetMapping
-   public ResponseEntity<List<EmployeeDTO>> findEmployeesByPosition(@RequestParam(value = "position", required = false) int position) {
-       List<EmployeeDTO> employees = employeeService.findEmployeesByPosition(String.valueOf(position));
-       return ResponseEntity.ok(employees);
-   }
+    @GetMapping("/position/{positionId}")
+    public List<EmployeeDTO> getEmployeesByPosition(@PathVariable int positionId) {
+        positionRepository.findById(positionId)
+                .orElseThrow(() -> new PositionNotFoundException("Position not found with id: " + positionId));
 
-   @GetMapping("/{id}/fullInfo")
-   public ResponseEntity<EmployeeFullInfoDTO> getEmployeeFullInfo(@PathVariable int id) {
-       EmployeeFullInfoDTO employeeFullInfo = employeeService.getEmployeeFullInfoById(id);
-       return ResponseEntity.ok(employeeFullInfo);
-   }
+        return employeeService.getEmployeesByPosition(positionId);
+    }
 
-   @GetMapping("/page")
-   public ResponseEntity<Page<EmployeeDTO>> getEmployeesByPage(@RequestParam(value = "page", defaultValue = "0") int page) {
-       Page<EmployeeDTO> employeesPage = employeeService.getAllEmployeesByPage(page);
-       return ResponseEntity.ok(employeesPage);
-   }
+    @GetMapping("/withHighestSalary")
+    public ResponseEntity<List<EmployeeDTO>> getEmployeesWithHighestSalary() {
+        List<EmployeeDTO> employees = employeeService.getEmployeesWithHighestSalary();
+        return ResponseEntity.ok(employees);
+    }
 
+    @GetMapping
+    public ResponseEntity<List<EmployeeDTO>> findEmployeesByPosition(@RequestParam(value = "position", required = false) int position) {
+        List<EmployeeDTO> employees = employeeService.findEmployeesByPosition(String.valueOf(position));
+        return ResponseEntity.ok(employees);
+    }
+
+    @GetMapping("/{id}/fullInfo")
+    public ResponseEntity<EmployeeFullInfoDTO> getEmployeeFullInfo(@PathVariable int id) {
+        EmployeeFullInfoDTO employeeFullInfo = employeeService.getEmployeeFullInfoById(id);
+        return ResponseEntity.ok(employeeFullInfo);
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<EmployeeDTO>> getEmployeesByPage(@RequestParam(value = "page", defaultValue = "0") int page) {
+        Page<EmployeeDTO> employeesPage = employeeService.getAllEmployeesByPage(page);
+        return ResponseEntity.ok(employeesPage);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/upload")
     public ResponseEntity<String> uploadEmployees() {
         try {
@@ -127,6 +135,7 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @GetMapping("/report/{id}")
     public ResponseEntity<byte[]> getReportById(@PathVariable int id) {
         Report report = reportRepository.findById(id)
@@ -141,11 +150,13 @@ public class EmployeeController {
 
     private List<Employee> readEmployeesFromJson(FileInputStream inputStream) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<List<Employee>> typeReference = new TypeReference<List<Employee>>() {};
+        TypeReference<List<Employee>> typeReference = new TypeReference<List<Employee>>() {
+        };
         List<Employee> employees = objectMapper.readValue(inputStream, typeReference);
         return employees;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     private List<Report> generateDepartmentStatistics() {
         List<Report> reports = new ArrayList<>();
 
@@ -185,6 +196,7 @@ public class EmployeeController {
 
         return reports;
     }
+
     private String convertToJson(List<Report> reports) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.writeValueAsString(reports);
