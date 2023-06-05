@@ -27,6 +27,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final PositionRepository positionRepository;
     private final ModelMapper modelMapper;
 
+
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
@@ -122,6 +123,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeDTO.setPosition(employee.getPosition());
         return employeeDTO;
     }
+
 
     // Helper method to convert Employee entities to DTOs
     private List<EmployeeDTO> convertToDTOList(List<Employee> employees) {
